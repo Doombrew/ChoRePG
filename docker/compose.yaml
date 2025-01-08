@@ -1,0 +1,16 @@
+version: '0.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: unless-stopped
+    container_name: ChoRePGdb
+    env-file: 
+      - ChoRePGdb.env
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    ports:
+      - 62522:8080
