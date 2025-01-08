@@ -1,0 +1,22 @@
+# Dockerfile
+
+#Python 3.12 is the last that includes the CGI module
+FROM python:3.12
+
+#Not quite sure why I have these. Included from instructions.
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+#Install needed packages, then remove unneeded files
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		postgresql-client \
+	&& rm -rf /var/lib/apt/lists/*
+
+#Create project directory
+WORKDIR /django_project
+
+#Copy over the requirements file
+COPY /chorepg/requirements.txt /django_project/
+
+RUN pip install -r requirements.txt

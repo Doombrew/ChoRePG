@@ -1,16 +1,44 @@
+name: choRePG_${BUILD_CONTEXT}
 version: '0.1'
 
 services:
 
   db:
-    image: postgres
+    image: postgres:latest
     restart: unless-stopped
-    container_name: ChoRePGdb
-    env-file: 
-      - ChoRePGdb.env
-
-  adminer:
-    image: adminer
-    restart: unless-stopped
+    container_name: choRePG_db
+#    shm_size: 128mb
+    volumes: 
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} 
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+# Once the application is up and running, this port may be disabled. Good canditate to be templatized
     ports:
-      - 62522:8080
+      - "39830:5432"
+
+  web: 
+    image: python:3.12
+    container_name: choRePG_web
+    ports: 
+      - "43431:8000" 
+    environment: 
+      - POSTGRES_DB=${POSTGRES_DB} 
+      - POSTGRES_USER=${POSTGRES_USER} 
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} 
+      - POSTGRES_HOST=db
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY} 
+    volumes: 
+      - ../django/django_project:/django_project
+    depends_on:
+      - db
+    build:
+      context: /${BUILD_CONTEXT}/
+      dockerfile: chorepg/dockerfile
+    command: python /django_project/manage.py runserver 0.0.0.0:8000
+#    tty: true
+    restart: unless-stopped
+
+volumes: 
+  postgres-data:
