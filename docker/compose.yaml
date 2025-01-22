@@ -18,6 +18,19 @@ services:
     ports:
       - "39830:5432"
 
+  couchdb:
+    image: couchdb:latest
+    restart: unless-stopped
+    container_name: couchdb
+    volumes:
+      - couchdb-data:/opt/couchdb/data
+      - couchdb-config:/opt/couchdb/etc/local.d
+    environment:
+      - COUCHDB_PASSWORD=${POSTGRES_PASSWORD}
+      - COUCHDB_USER=${POSTGRES_USER}
+    ports:
+      - "5984:5984"
+
   web: 
     image: python:3.12
     container_name: choRePG_web
@@ -42,3 +55,5 @@ services:
 
 volumes: 
   postgres-data:
+  couchdb-data:
+  couchdb-config:
